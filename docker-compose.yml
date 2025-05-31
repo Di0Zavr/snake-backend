@@ -1,0 +1,17 @@
+services:
+  db:
+    container_name: snake-backend-db
+    image: postgres:15
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=snake_db
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql@15/data
+
+volumes:
+  pgdata:
