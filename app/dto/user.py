@@ -19,8 +19,12 @@ class UserEmailForPasswordReset(BaseModel):
     email: EmailStr
 
 class UserPasswordChange(BaseModel):
+    reset_token: str
     password: str
     password_confirm: str
+
+class PasswordResetResponse(BaseModel):
+    success: bool
 
 class UserResponse(BaseModel):
     id: int
@@ -31,6 +35,9 @@ class UserResponse(BaseModel):
     email: EmailStr
     created_at: datetime.datetime
     last_login: Optional[datetime.datetime] = None
+
+class PasswordTokenResponse(BaseModel):
+    token: str
 
 class TokenResponse(BaseModel):
     token: str

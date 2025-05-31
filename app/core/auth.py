@@ -18,7 +18,7 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return pwd_context.verify(password, hashed)
 
-def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[datetime.timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.datetime.now(datetime.timezone.utc) + (expires_delta or datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
@@ -29,3 +29,12 @@ def decode_token(token: str) -> Optional[dict]:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.DecodeError:
         return None
+    
+def create_password_reset_token(email: str) -> str:
+    to_encode = {"email": email}
+    expire_time = datetime.timedelta(minutes=10)
+    return create_access_token(to_encode, expire_time)
+
+def decode_password_reset_token(token: str) -> Optional[dict]:
+    payload = decode_token(token)
+    return payload

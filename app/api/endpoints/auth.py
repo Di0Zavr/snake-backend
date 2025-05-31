@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dto.user import UserRegistration, UserLogin, UserResponse, TokenResponse
-from core.auth import create_access_token, hash_password, verify_password
-from core.db import get_db_connection, get_db_session
-from models.models import User
+from dto.user import UserRegistration, UserLogin, UserResponse, TokenResponse, PasswordTokenResponse, UserEmailForPasswordReset, UserPasswordChange, PasswordResetResponse
+from core.auth import create_access_token, hash_password, verify_password, create_password_reset_token, decode_password_reset_token
+from core.db import get_db_connection
 import datetime
 
 auth_router = APIRouter()
@@ -118,3 +117,61 @@ def login(data: UserLogin, conn=Depends(get_db_connection)):
     )
     
     return TokenResponse(token=token)
+
+@auth_router.post("/forget-password",
+                  response_model=PasswordTokenResponse,
+                  summary="Получение токена на восстановление пароля"
+                  )
+def forget_password(data: UserEmailForPasswordReset, conn=Depends(get_db_connection)):
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT id, email FROM \"user\"
+        WHERE email = %s
+        """,
+        (data.email,)
+    )
+
+    if not cursor.fetchone():
+        raise HTTPException(
+            status_code=400,
+            detail="Неверный email"
+        )
+
+    token = create_password_reset_token(data.email)
+    return PasswordTokenResponse(token=token)
+
+@auth_router.post("/reset-password",
+                  response_model=PasswordResetResponse,
+                  summary="Восстановление пароля"
+                  )
+def reset_password(data: UserPasswordChange, conn=Depends(get_db_connection)):
+    payload = decode_password_reset_token(data.reset_token)
+    if not payload or not payload.get("email"):
+        raise HTTPException(
+            status_code=403,
+            detail="Неверный токен восстановления пароля"
+        )
+    
+    if data.password != data.password_confirm:
+        raise HTTPException(
+            status_code=400,
+            detail="Пароли не совпадают"
+        )
+    
+    email = payload["email"]
+    cursor = conn.cursor()
+
+    password_hash = hash_password(data.password)
+    cursor.execute(
+        """
+        UPDATE \"user\"
+        SET password_hash=%s
+        WHERE email = %s
+        """,
+        (password_hash, email)
+    )
+    conn.commit()
+
+    return PasswordResetResponse(success=True)
