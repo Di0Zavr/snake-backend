@@ -10,7 +10,7 @@ auth_router = APIRouter()
                   response_model=TokenResponse,
                   summary="Получение тестового токена"
                   )
-def dummyLogin():
+def dummyLogin() -> TokenResponse:
     token = create_access_token(
         data={"id": 1}
     )
@@ -20,7 +20,10 @@ def dummyLogin():
                   response_model=UserResponse,
                   summary="Регистрация пользователя"
                   )
-def register(data: UserRegistration, conn=Depends(get_db_connection)):
+def register(
+    data: UserRegistration,
+    conn=Depends(get_db_connection)
+) -> UserResponse:
     cursor = conn.cursor()
 
     if data.password != data.password_confirm:
@@ -77,7 +80,10 @@ def register(data: UserRegistration, conn=Depends(get_db_connection)):
                   response_model=TokenResponse,
                   summary="Авторизация пользователя"
                   )
-def login(data: UserLogin, conn=Depends(get_db_connection)):
+def login(
+    data: UserLogin,
+    conn=Depends(get_db_connection)
+) -> TokenResponse:
     cursor = conn.cursor()
 
     cursor.execute(
@@ -122,7 +128,10 @@ def login(data: UserLogin, conn=Depends(get_db_connection)):
                   response_model=PasswordTokenResponse,
                   summary="Получение токена на восстановление пароля"
                   )
-def forget_password(data: UserEmailForPasswordReset, conn=Depends(get_db_connection)):
+def forget_password(
+    data: UserEmailForPasswordReset,
+    conn=Depends(get_db_connection)
+) -> PasswordTokenResponse:
     cursor = conn.cursor()
 
     cursor.execute(
@@ -146,7 +155,10 @@ def forget_password(data: UserEmailForPasswordReset, conn=Depends(get_db_connect
                   response_model=PasswordResetResponse,
                   summary="Восстановление пароля"
                   )
-def reset_password(data: UserPasswordReset, conn=Depends(get_db_connection)):
+def reset_password(
+    data: UserPasswordReset,
+    conn=Depends(get_db_connection)
+) -> PasswordResetResponse:
     payload = decode_password_reset_token(data.reset_token)
     if not payload or not payload.get("email"):
         raise HTTPException(
