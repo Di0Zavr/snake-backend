@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from dto.user import UserRegistration, UserLogin, UserResponse, TokenResponse, PasswordTokenResponse, UserEmailForPasswordReset, UserPasswordChange, PasswordResetResponse
+from dto.user import UserRegistration, UserLogin, UserResponse, TokenResponse, PasswordTokenResponse, UserEmailForPasswordReset, UserPasswordReset, PasswordResetResponse
 from core.auth import create_access_token, hash_password, verify_password, create_password_reset_token, decode_password_reset_token
 from core.db import get_db_connection
 import datetime
@@ -146,7 +146,7 @@ def forget_password(data: UserEmailForPasswordReset, conn=Depends(get_db_connect
                   response_model=PasswordResetResponse,
                   summary="Восстановление пароля"
                   )
-def reset_password(data: UserPasswordChange, conn=Depends(get_db_connection)):
+def reset_password(data: UserPasswordReset, conn=Depends(get_db_connection)):
     payload = decode_password_reset_token(data.reset_token)
     if not payload or not payload.get("email"):
         raise HTTPException(

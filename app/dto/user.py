@@ -18,8 +18,12 @@ class UserLogin(BaseModel):
 class UserEmailForPasswordReset(BaseModel):
     email: EmailStr
 
-class UserPasswordChange(BaseModel):
+class UserPasswordReset(BaseModel):
     reset_token: str
+    password: str
+    password_confirm: str
+
+class UserPasswordChange(BaseModel):
     password: str
     password_confirm: str
 
