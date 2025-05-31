@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from core.db import init_db
 from api.endpoints.auth import auth_router
+from api.endpoints.user import user_router
 
 app = FastAPI()
 
@@ -13,3 +14,4 @@ def root():
     return {"Hello": "world"}
 
 app.include_router(auth_router)
+app.include_router(user_router, prefix="/user")
