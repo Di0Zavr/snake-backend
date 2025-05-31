@@ -7,3 +7,9 @@
 - FastAPI (python)
 - SQLModel
 - PostgreSQL
+
+## Deploy
+
+```docker
+docker-compose up -d
+```
