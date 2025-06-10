@@ -16,6 +16,7 @@ services:
   app:
     container_name: snake-backend-app
     build: .
+    restart: always
     depends_on:
       - db
     environment:
